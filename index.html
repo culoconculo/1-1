@@ -2,61 +2,74 @@
    <!DOCTYPE html>
 <html>
 <head>
-  <title>Random Video Match</title>
+  <title>Random Match</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+
 </head>
 
-<body style="font-family: Arial; text-align: center; margin-top: 60px; background:#0f0f0f; color:white;">
+<body style="font-family: Arial; text-align:center; margin-top:80px;">
 
-  <h1>Random Video Match</h1>
+<h1>Random Video Match</h1>
 
-  <!-- HOME -->
-  <div id="home">
-    <p>Connect instantly with random people</p>
-    <button onclick="start()" style="padding:15px 30px; font-size:16px; cursor:pointer;">
-      Start Matching
-    </button>
-  </div>
+<div id="home">
+  <button onclick="joinQueue()">Start</button>
+</div>
 
-  <!-- QUEUE -->
-  <div id="queue" style="display:none;">
-    <h2>Searching for match...</h2>
-    <p>Hold on, finding someone</p>
-  </div>
+<div id="queue" style="display:none;">
+  <h2>Wartet auf Match...</h2>
+</div>
 
-  <!-- MATCH -->
-  <div id="match" style="display:none;">
-    <h2>Match Found 🎉</h2>
+<div id="match" style="display:none;">
+  <h2>Match gefunden 🎉</h2>
+</div>
 
-    <div style="margin:20px; padding:40px; border:1px solid white;">
-      <p>VIDEO AREA (coming next step)</p>
-    </div>
+<script>
+  // 🔴 DEIN FIREBASE SETUP HIER EINTRAGEN
+  const firebaseConfig = {
+    apiKey: "XXX",
+    authDomain: "XXX",
+    projectId: "XXX",
+  };
 
-    <button onclick="next()" style="padding:12px 25px;">
-      Next Match
-    </button>
-  </div>
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-  <script>
-    function start() {
-      document.getElementById("home").style.display = "none";
-      document.getElementById("queue").style.display = "block";
+  let userId = Math.random().toString(36).substring(7);
 
-      setTimeout(() => {
+  async function joinQueue() {
+    document.getElementById("home").style.display = "none";
+    document.getElementById("queue").style.display = "block";
+
+    await db.collection("queue").doc(userId).set({
+      timestamp: Date.now()
+    });
+
+    checkMatch();
+  }
+
+  function checkMatch() {
+    setInterval(async () => {
+      const snapshot = await db.collection("queue").get();
+
+      if (snapshot.size >= 2) {
+        let count = 0;
+
+        snapshot.forEach(doc => {
+          if (count < 2) {
+            db.collection("queue").doc(doc.id).delete();
+            count++;
+          }
+        });
+
         document.getElementById("queue").style.display = "none";
         document.getElementById("match").style.display = "block";
-      }, 2000);
-    }
-
-    function next() {
-      document.getElementById("match").style.display = "none";
-      document.getElementById("queue").style.display = "block";
-
-      setTimeout(() => {
-        document.getElementById("queue").style.display = "none";
-        document.getElementById("match").style.display = "block";
-      }, 2000);
-    }
-  </script>
+      }
+    }, 2000);
+  }
+</script>
 
 </body>
 </html>
