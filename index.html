@@ -4,26 +4,35 @@
   <title>Random Video Match</title>
 </head>
 
-<body style="font-family: Arial; text-align: center; margin-top: 80px;">
+<body style="font-family: Arial; text-align: center; margin-top: 60px; background:#0f0f0f; color:white;">
 
   <h1>Random Video Match</h1>
 
+  <!-- HOME -->
   <div id="home">
-    <p>Finde zufällige Matches in Echtzeit</p>
-    <button onclick="start()" style="padding:15px 25px;">
-      Start
+    <p>Connect instantly with random people</p>
+    <button onclick="start()" style="padding:15px 30px; font-size:16px; cursor:pointer;">
+      Start Matching
     </button>
   </div>
 
+  <!-- QUEUE -->
   <div id="queue" style="display:none;">
-    <h2>Suche Match...</h2>
-    <p>Bitte warten</p>
+    <h2>Searching for match...</h2>
+    <p>Hold on, finding someone</p>
   </div>
 
+  <!-- MATCH -->
   <div id="match" style="display:none;">
-    <h2>Match gefunden 🎉</h2>
-    <p>Hier kommt später Video Call rein</p>
-    <button onclick="next()">Next</button>
+    <h2>Match Found 🎉</h2>
+
+    <div style="margin:20px; padding:40px; border:1px solid white;">
+      <p>VIDEO AREA (coming next step)</p>
+    </div>
+
+    <button onclick="next()" style="padding:12px 25px;">
+      Next Match
+    </button>
   </div>
 
   <script>
