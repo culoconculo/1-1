@@ -1,16 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Test App</title>
+  <title>Random Video Match</title>
 </head>
-<body style="font-family: Arial; text-align: center; margin-top: 100px;">
 
-  <h1>Meine erste App</h1>
-  <p>Wenn das hier funktioniert, bist du online</p>
+<body style="font-family: Arial; text-align: center; margin-top: 80px;">
 
-  <button onclick="alert('Start gedrückt')">
-    Start
-  </button>
+  <h1>Random Video Match</h1>
+
+  <div id="home">
+    <p>Finde zufällige Matches in Echtzeit</p>
+    <button onclick="start()" style="padding:15px 25px;">
+      Start
+    </button>
+  </div>
+
+  <div id="queue" style="display:none;">
+    <h2>Suche Match...</h2>
+    <p>Bitte warten</p>
+  </div>
+
+  <div id="match" style="display:none;">
+    <h2>Match gefunden 🎉</h2>
+    <p>Hier kommt später Video Call rein</p>
+    <button onclick="next()">Next</button>
+  </div>
+
+  <script>
+    function start() {
+      document.getElementById("home").style.display = "none";
+      document.getElementById("queue").style.display = "block";
+
+      setTimeout(() => {
+        document.getElementById("queue").style.display = "none";
+        document.getElementById("match").style.display = "block";
+      }, 2000);
+    }
+
+    function next() {
+      document.getElementById("match").style.display = "none";
+      document.getElementById("queue").style.display = "block";
+
+      setTimeout(() => {
+        document.getElementById("queue").style.display = "none";
+        document.getElementById("match").style.display = "block";
+      }, 2000);
+    }
+  </script>
 
 </body>
 </html>
