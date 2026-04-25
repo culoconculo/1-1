@@ -1,75 +1,71 @@
 
-   <!DOCTYPE html>
-<html>
-<head>
-  <title>Random Match</title>
+   <script>
+const firebaseConfig = {
+  apiKey: "XXX",
+  authDomain: "XXX",
+  projectId: "XXX"
+};
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-</head>
+let userId = Math.random().toString(36).substring(7);
 
-<body style="font-family: Arial; text-align:center; margin-top:80px;">
+async function joinQueue() {
+  document.getElementById("home").style.display = "none";
+  document.getElementById("queue").style.display = "block";
 
-<h1>Random Video Match</h1>
+  // User in Queue setzen
+  await db.collection("queue").doc(userId).set({
+    timestamp: Date.now()
+  });
 
-<div id="home">
-  <button onclick="joinQueue()">Start</button>
-</div>
+  listenForMatch();
+}
 
-<div id="queue" style="display:none;">
-  <h2>Wartet auf Match...</h2>
-</div>
+function listenForMatch() {
+  setInterval(async () => {
 
-<div id="match" style="display:none;">
-  <h2>Match gefunden 🎉</h2>
-</div>
+    const queueSnap = await db.collection("queue")
+      .orderBy("timestamp")
+      .get();
 
-<script>
-  // 🔴 DEIN FIREBASE SETUP HIER EINTRAGEN
-  const firebaseConfig = {
-    apiKey: "XXX",
-    authDomain: "XXX",
-    projectId: "XXX",
-  };
+    const users = queueSnap.docs.map(d => d.id);
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    // Wenn ich nicht der erste bin → Match finden
+    if (users.length >= 2) {
 
-  let userId = Math.random().toString(36).substring(7);
+      const otherUser = users.find(u => u !== userId);
 
-  async function joinQueue() {
-    document.getElementById("home").style.display = "none";
-    document.getElementById("queue").style.display = "block";
+      if (!otherUser) return;
 
-    await db.collection("queue").doc(userId).set({
-      timestamp: Date.now()
-    });
+      const matchId = userId + "_" + otherUser;
 
-    checkMatch();
-  }
+      // Match erstellen (nur einmal!)
+      const matchRef = db.collection("matches").doc(matchId);
+      const matchDoc = await matchRef.get();
 
-  function checkMatch() {
-    setInterval(async () => {
-      const snapshot = await db.collection("queue").get();
-
-      if (snapshot.size >= 2) {
-        let count = 0;
-
-        snapshot.forEach(doc => {
-          if (count < 2) {
-            db.collection("queue").doc(doc.id).delete();
-            count++;
-          }
+      if (!matchDoc.exists) {
+        await matchRef.set({
+          userA: userId,
+          userB: otherUser,
+          createdAt: Date.now()
         });
-
-        document.getElementById("queue").style.display = "none";
-        document.getElementById("match").style.display = "block";
       }
-    }, 2000);
-  }
-</script>
 
-</body>
-</html>
+      // Beide aus Queue entfernen
+      await db.collection("queue").doc(userId).delete();
+      await db.collection("queue").doc(otherUser).delete();
+
+      showMatch();
+
+    }
+
+  }, 2000);
+}
+
+function showMatch() {
+  document.getElementById("queue").style.display = "none";
+  document.getElementById("match").style.display = "block";
+}
+</script>
